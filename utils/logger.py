@@ -2,7 +2,6 @@
 
 import logging
 import sys
-from typing import Optional
 
 
 def setup_logger(name: str = "ai_browser_agent", level: int = logging.INFO) -> logging.Logger:
@@ -35,4 +34,3 @@ def setup_logger(name: str = "ai_browser_agent", level: int = logging.INFO) -> l
     logger.addHandler(console_handler)
 
     return logger
-

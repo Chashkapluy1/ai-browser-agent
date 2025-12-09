@@ -1,6 +1,5 @@
 """Инструменты для взаимодействия с браузером."""
 
-from typing import Optional
 from playwright.async_api import Page, TimeoutError as PlaywrightTimeoutError
 
 
@@ -19,12 +18,10 @@ class BrowserTools:
     async def click_element(self, ai_id: str) -> str:
         """
         Кликает по элементу с указанным data-ai-id.
+        После клика по ссылке или кнопке, которая ведет на новую страницу, используй 'wait_for_navigation'.
 
         Args:
             ai_id: Идентификатор элемента (например, 'ai-id-5').
-
-        Returns:
-            Сообщение о результате выполнения действия.
         """
         if not ai_id or not isinstance(ai_id, str):
             return "Ошибка: невалидный идентификатор элемента."
@@ -45,9 +42,6 @@ class BrowserTools:
         Args:
             ai_id: Идентификатор элемента (например, 'ai-id-3').
             text: Текст для ввода.
-
-        Returns:
-            Сообщение о результате выполнения действия.
         """
         if not ai_id or not isinstance(ai_id, str):
             return "Ошибка: невалидный идентификатор элемента."
@@ -69,9 +63,6 @@ class BrowserTools:
 
         Args:
             url: URL для перехода.
-
-        Returns:
-            Сообщение о результате выполнения действия.
         """
         if not url or not isinstance(url, str):
             return "Ошибка: невалидный URL."
@@ -79,7 +70,7 @@ class BrowserTools:
         try:
             if not url.startswith(("http://", "https://")):
                 url = "https://" + url
-            await self.page.goto(url, wait_until="networkidle", timeout=30000)
+            await self.page.goto(url, wait_until="domcontentloaded", timeout=30000)
             return f"Успешно перешел на {url}."
         except Exception as e:
             return f"Ошибка при переходе на {url}: {str(e)}"
@@ -91,9 +82,6 @@ class BrowserTools:
         Args:
             direction: Направление прокрутки ('down', 'up', 'top', 'bottom').
             pixels: Количество пикселей для прокрутки (для down/up).
-
-        Returns:
-            Сообщение о результате выполнения действия.
         """
         valid_directions = {"down", "up", "top", "bottom"}
         if direction not in valid_directions:
@@ -112,7 +100,7 @@ class BrowserTools:
             elif direction == "bottom":
                 await self.page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
 
-            await self.page.wait_for_timeout(500)  # Даем время на прокрутку
+            await self.page.wait_for_timeout(500)
             return f"Страница прокручена {direction}."
         except Exception as e:
             return f"Ошибка при прокрутке страницы: {str(e)}"
@@ -123,9 +111,6 @@ class BrowserTools:
 
         Args:
             ai_id: Идентификатор элемента.
-
-        Returns:
-            Текст элемента или сообщение об ошибке.
         """
         try:
             selector = f"[data-ai-id='{ai_id}']"
@@ -143,9 +128,6 @@ class BrowserTools:
         Args:
             ai_id: Идентификатор элемента.
             timeout: Таймаут ожидания в миллисекундах.
-
-        Returns:
-            Сообщение о результате ожидания.
         """
         try:
             selector = f"[data-ai-id='{ai_id}']"
@@ -162,9 +144,6 @@ class BrowserTools:
 
         Args:
             key: Название клавиши (например, 'Enter', 'Escape', 'Tab').
-
-        Returns:
-            Сообщение о результате выполнения действия.
         """
         try:
             await self.page.keyboard.press(key)
@@ -172,3 +151,16 @@ class BrowserTools:
         except Exception as e:
             return f"Ошибка при нажатии клавиши {key}: {str(e)}"
 
+    async def wait_for_navigation(self, timeout: int = 30000) -> str:
+        """
+        Ожидает завершения навигации на странице после действия (например, клика).
+        Используй это СРАЗУ ПОСЛЕ клика по ссылке или кнопке, которая ведет на новую страницу.
+
+        Args:
+            timeout: Таймаут ожидания в миллисекундах.
+        """
+        try:
+            await self.page.wait_for_load_state("domcontentloaded", timeout=timeout)
+            return "Навигация на новую страницу успешно завершена."
+        except Exception as e:
+            return f"Ошибка при ожидании навигации: {str(e)}"

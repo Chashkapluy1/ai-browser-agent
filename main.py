@@ -98,4 +98,10 @@ if __name__ == "__main__":
         asyncio.run(main())
     except KeyboardInterrupt:
         print("\n\n👋 Программа завершена.")
+        # Даем время на корректное закрытие ресурсов
+        import time
+        time.sleep(0.1)
         sys.exit(0)
+    except Exception as e:
+        print(f"\n❌ Неожиданная ошибка: {str(e)}")
+        sys.exit(1)

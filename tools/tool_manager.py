@@ -2,7 +2,7 @@
 
 import inspect
 import re
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, List
 
 
 def parse_google_docstring(doc: str) -> Dict[str, Any]:

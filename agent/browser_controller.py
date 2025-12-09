@@ -135,4 +135,3 @@ class BrowserController:
             await self.browser.close()
         if self.playwright:
             await self.playwright.stop()
-
