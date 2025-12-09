@@ -164,3 +164,37 @@ class BrowserTools:
             return "Навигация на новую страницу успешно завершена."
         except Exception as e:
             return f"Ошибка при ожидании навигации: {str(e)}"
+
+    async def close_popup_if_present(self) -> str:
+        """
+        Проверяет наличие распространенных попап-окон (регистрация, cookie) и пытается их закрыть.
+        Используй этот инструмент в начале работы на новой странице или если не можешь кликнуть по элементу.
+        """
+        # Ищем кнопку закрытия по самым распространенным признакам
+        close_button_selectors = [
+            '[aria-label="Close"]',
+            '[aria-label="close"]',
+            'button[class*="close"]',
+            'div[class*="close"]',
+            '[id*="close"]',
+            'button:has-text("Accept")',
+            'button:has-text("Accept all")',
+            'button:has-text("Хорошо")',
+            'button:has-text("Принять все")',
+            'button:has-text("No, thanks")',
+        ]
+
+        for selector in close_button_selectors:
+            try:
+                # Используем locator, так как он не бросает ошибку, если элемент не найден сразу
+                close_button = self.page.locator(selector).first
+                # Проверяем, что элемент видим, прежде чем кликнуть
+                if await close_button.is_visible(timeout=1000):
+                    await close_button.click()
+                    await self.page.wait_for_timeout(500) # Даем время на анимацию закрытия
+                    return f"Найдено и закрыто всплывающее окно с помощью селектора '{selector}'."
+            except Exception:
+                # Просто пробуем следующий селектор, если клик не удался или элемент не найден
+                continue
+        
+        return "Всплывающих окон для закрытия не найдено."
