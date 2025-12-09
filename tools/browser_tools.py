@@ -191,10 +191,10 @@ class BrowserTools:
                 # Проверяем, что элемент видим, прежде чем кликнуть
                 if await close_button.is_visible(timeout=1000):
                     await close_button.click()
-                    await self.page.wait_for_timeout(500) # Даем время на анимацию закрытия
+                    await self.page.wait_for_timeout(500)  # Даем время на анимацию закрытия
                     return f"Найдено и закрыто всплывающее окно с помощью селектора '{selector}'."
             except Exception:
                 # Просто пробуем следующий селектор, если клик не удался или элемент не найден
                 continue
-        
+
         return "Всплывающих окон для закрытия не найдено."
